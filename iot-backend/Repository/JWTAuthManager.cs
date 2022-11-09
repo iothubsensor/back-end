@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Text;
 using iot_backend.Models;
 using iot_backend.Models.api;
+using iot_backend.Models.user;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
 
@@ -18,28 +19,28 @@ public class JWTAuthManager : IJWTAuthManager
         _configuration = configuration;
     }
     
-    public Response<string> GenerateJWT(User user)
+    public Response<object> GenerateJWT(User user)
     {
-        Response<string> response = new Response<string>();
+        Response<object> response = new Response<object>();
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtAuth:Key"]));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
         
         var claims = new[] {
             new Claim("user_id", user.UserId.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
             new Claim("roles", user.Role.ToString().ToLower()),
             new Claim("Date", DateTime.Now.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
-        var token = new JwtSecurityToken(_configuration["JwtAuth:Issuer"],
+        var signedToken = new JwtSecurityToken(_configuration["JwtAuth:Issuer"],
           _configuration["JwtAuth:Issuer"],
           claims,
           expires: DateTime.Now.AddMinutes(120),
           signingCredentials: credentials);
 
-        response.Data = new JwtSecurityTokenHandler().WriteToken(token);
+        
+        response.data = new {token = new JwtSecurityTokenHandler().WriteToken(signedToken), expiresIn = DateTimeOffset.Now.AddMinutes(120).ToUnixTimeMilliseconds(), user = new UserDTO(user)};
         response.code = 200;
         response.message = "Token generated";
         

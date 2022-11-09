@@ -5,5 +5,5 @@ namespace iot_backend.Repository;
 
 public interface IJWTAuthManager
 {
-    Response<string> GenerateJWT(User user);
+    Response<object> GenerateJWT(User user);
 }

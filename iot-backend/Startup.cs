@@ -27,6 +27,7 @@ public class Startup
         services.AddSwaggerGen(option =>
         {
             option.SwaggerDoc("v1", new OpenApiInfo { Title = "IOTHubSensor", Version = "v1" });
+            
             option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
             {
                 Name = "Authorization",
@@ -76,13 +77,13 @@ public class Startup
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        if (env.IsDevelopment())
+        app.UseDeveloperExceptionPage();
+        app.UseSwagger(options =>
         {
+            options.SerializeAsV2 = true;
+        });
             
-            app.UseDeveloperExceptionPage();
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "IOTHubSensor v1"));
-        }
+        app.UseSwaggerUI();
 
         app.UseRouting();
         app.UseAuthentication();

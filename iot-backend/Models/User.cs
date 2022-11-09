@@ -8,7 +8,7 @@ public partial class User
 {
     public User()
     {
-        UserSensors = new HashSet<UserSensor>();
+        Sensors = new HashSet<UserSensor>();
     }
     
     public User(string email, string password, RoleEnum role) : this()
@@ -34,5 +34,5 @@ public partial class User
     
     public bool isSetup { get; set; }
     
-    public virtual ICollection<UserSensor> UserSensors { get; set; }
+    public virtual ICollection<UserSensor> Sensors { get; set; }
 }

@@ -9,4 +9,7 @@ public class SensorDataModel
     
     [Required]
     public string SensorId { get; set; }
+    
+    [Required]
+    public string key { get; set; }
 }

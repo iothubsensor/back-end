@@ -23,17 +23,17 @@ public class IOTContext : DbContext
         
         modelBuilder.Entity<SensorData>()
             .HasOne(sD => sD.Sensor)
-            .WithMany(s => s.SensorDatas)
+            .WithMany(s => s.Datas)
             .OnDelete(DeleteBehavior.Cascade);
         
         modelBuilder.Entity<UserSensor>()
             .HasOne(uS => uS.User)
-            .WithMany(u => u.UserSensors)
+            .WithMany(u => u.Sensors)
             .OnDelete(DeleteBehavior.Cascade);
         
         modelBuilder.Entity<UserSensor>()
             .HasOne(uS => uS.Sensor)
-            .WithMany(s => s.UserSensors)
+            .WithMany(s => s.Users)
             .OnDelete(DeleteBehavior.Cascade);
     }
     

@@ -17,10 +17,12 @@ public class UserSensor
 
     public int UserId { get; set; }
     
+    [JsonIgnore]
     public virtual User User { get; set; }
 
     public string SensorId { get; set; }
     
+    [JsonIgnore]
     public virtual Sensor Sensor { get; set; }
     
     protected bool Equals(UserSensor other)
