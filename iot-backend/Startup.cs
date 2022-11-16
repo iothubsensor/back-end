@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using iot_backend.Models;
 using iot_backend.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -71,7 +72,14 @@ public class Startup
            };
        });
         
-        services.AddDbContext<IOTContext>();
+        if(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
+            services.AddDbContext<IOTContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("prod")));
+        else
+            services.AddDbContext<IOTContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("dev")));
+        
+        services.BuildServiceProvider().GetService<IOTContext>().Database.Migrate();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -93,5 +101,6 @@ public class Startup
         {
             endpoints.MapControllers();
         });
+        
     }
 }

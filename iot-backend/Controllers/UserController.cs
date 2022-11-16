@@ -28,8 +28,14 @@ public class UserController : ControllerBase
     {
         _context = context;
         _authentication = authentication;
+        
+        if (!_context.Users.Any())
+        {
+            _context.Users.Add(new User("admin@sensorify.com", generatePassword("admin123"), RoleEnum.ADMIN));
+            _context.SaveChanges();
+        }
     }
-    
+
     [HttpPost("register")]
     [Authorize(Roles = "admin")]
     public async Task<ActionResult<UserDTO>> register([FromBody]RegisterModel user)
@@ -38,17 +44,8 @@ public class UserController : ControllerBase
         {
             return BadRequest(new { message = "The model is invalid.", code = BadRequest().StatusCode});
         }
-
-        byte[] salt;
-        new RNGCryptoServiceProvider().GetBytes(salt = new byte[16]);
-        var pbkdf2 = new Rfc2898DeriveBytes(user.password, salt, 10000);
-        byte[] hash = pbkdf2.GetBytes(20);
-        byte[] hashBytes = new byte[36];
-        Array.Copy(salt, 0, hashBytes, 0, 16);
-        Array.Copy(hash, 0, hashBytes, 16, 20);
-        string savedPasswordHash = Convert.ToBase64String(hashBytes);
         
-        var dbUser = _context.Users.Add(new User(user.email, savedPasswordHash, user.role));
+        var dbUser = _context.Users.Add(new User(user.email, generatePassword(user.password), user.role));
         await _context.SaveChangesAsync();
         
         return CreatedAtAction("get", new { id = dbUser.Entity.UserId }, dbUser.Entity);
@@ -172,5 +169,18 @@ public class UserController : ControllerBase
     private bool UserExists(int id)
     {
         return (_context.Users?.Any(e => e.UserId == id)).GetValueOrDefault();
+    }
+    
+    private String generatePassword(String unhashed)
+    {
+        byte[] salt;
+        new RNGCryptoServiceProvider().GetBytes(salt = new byte[16]);
+        var pbkdf2 = new Rfc2898DeriveBytes(unhashed, salt, 10000);
+        byte[] hash = pbkdf2.GetBytes(20);
+        byte[] hashBytes = new byte[36];
+        Array.Copy(salt, 0, hashBytes, 0, 16);
+        Array.Copy(hash, 0, hashBytes, 16, 20);
+        
+        return Convert.ToBase64String(hashBytes);
     }
 }

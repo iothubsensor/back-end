@@ -4,10 +4,9 @@ namespace iot_backend.Models;
 
 public class IOTContext : DbContext
 {
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseSqlServer(@"Server=DESKTOP-LCSVRN2;Database=IOTHubSensorDB;Trusted_Connection=True;MultipleActiveResultSets=true;Encrypt=False;");
-    }
+    public IOTContext(DbContextOptions<IOTContext> options)
+        : base(options)
+    { }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
