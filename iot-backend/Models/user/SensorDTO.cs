@@ -1,15 +1,23 @@
-﻿namespace iot_backend.Models.user;
+﻿using iot_backend.Models.sensor;
+
+namespace iot_backend.Models.user;
 
 public class SensorDTO
 {
-    public SensorDTO(Sensor sensor)
+    public SensorDTO(Sensor sensor, int? limitAmount)
     {
         SensorId = sensor.SensorId;
         Name = sensor.Name;
         Description = sensor.Description;
         
-        Datas = sensor.Datas.Select(
-            data => new SensorDataDTO(data)).ToList();
+        if(limitAmount.HasValue)
+            Datas = sensor.Datas.Select(
+                data => new SensorDataDTO(data)).OrderBy(obj => obj.Date).TakeLast(limitAmount.Value).ToList();
+        else
+        {
+            Datas = sensor.Datas.Select(
+                data => new SensorDataDTO(data)).OrderBy(obj => obj.Date).ToList();
+        }
 
         Users = sensor.Users.Select(
             user => user.UserId).ToList();

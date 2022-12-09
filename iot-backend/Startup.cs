@@ -20,6 +20,8 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        services.AddCors();
+        
         services.AddSingleton<IJWTAuthManager, JWTAuthManager>();
         
         services.AddControllers().AddJsonOptions(x =>
@@ -71,7 +73,7 @@ public class Startup
                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtAuth:Key"]))
            };
        });
-        
+
         if(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
             services.AddDbContext<IOTContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("prod")));
@@ -85,6 +87,11 @@ public class Startup
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+        app.UseCors(x =>
+        {
+            x.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://iothubsensor.vercel.app");
+        });
+        
         app.UseDeveloperExceptionPage();
         app.UseSwagger(options =>
         {
@@ -101,6 +108,5 @@ public class Startup
         {
             endpoints.MapControllers();
         });
-        
     }
 }

@@ -48,21 +48,20 @@ public class SensorController: ControllerBase
         await _context.SaveChangesAsync();
         
         return Ok(new
-            { message = "Successfully created sensor", code = Ok().StatusCode, token = sensor.Key, data = new SensorDTO(dbSensor.Entity) });
+            { message = "Successfully created sensor", code = Ok().StatusCode, token = sensor.Key, data = new SensorDTO(dbSensor.Entity, null) });
     }
 
     [HttpGet("get/{id}")]
     [Authorize]
-    public async Task<ActionResult<SensorDTO>> get(string id)
+    public async Task<ActionResult<SensorDTO>> get(string id, int? limitAmount)
     {
         var dbSensor = await _context.Sensors.Include(sensor => sensor.Datas).FirstOrDefaultAsync(s => s.SensorId == id);
             
         if(dbSensor == null)
             return NotFound(new { message = "The sensor with that id has not been found.", code = NotFound().StatusCode});
-        
-        
+
         return Ok(new
-            { message = "Successfully retrieved sensor data " + dbSensor.Datas.Count, code = Ok().StatusCode, data = new SensorDTO(dbSensor) });
+            { message = "Successfully retrieved sensor data " + dbSensor.Datas.Count, code = Ok().StatusCode, data = new SensorDTO(dbSensor, limitAmount) });
     }
     
     [HttpPost("data")]
@@ -100,7 +99,7 @@ public class SensorController: ControllerBase
             return BadRequest(new { message = "The model is invalid.", code = BadRequest().StatusCode});
         }
 
-        var dbSensors = await _context.Sensors.Include(s => s.Users).Select(sensor => new SensorDTO(sensor)).ToListAsync();
+        var dbSensors = await _context.Sensors.Include(s => s.Users).Select(sensor => new SensorDTO(sensor, null)).ToListAsync();
 
         return Ok(new
             { message = "Successfully found sensors", code = Ok().StatusCode, data = dbSensors });
